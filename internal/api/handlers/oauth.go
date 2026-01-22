@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/oxiginedev/sabipass/config"
 	"github.com/oxiginedev/sabipass/internal/database"
 	"github.com/oxiginedev/sabipass/internal/models"
@@ -120,13 +119,13 @@ func (o *oauthHandler) HandleGoogleLoginCallback(c *gin.Context) {
 
 	if user == nil {
 		user = &models.User{
-			ID:              uuid.Must(uuid.NewV7()).String(),
-			Name:            googleUser.Name,
+			ID:              utils.Uuid(),
+			Name:            utils.Ptr(googleUser.Name),
 			Username:        strings.Split(googleUser.Email, "@")[0],
 			Email:           googleUser.Email,
 			EmailVerifiedAt: utils.Ptr(time.Now()),
-			GoogleID:        googleUser.ID,
-			Avatar:          googleUser.Picture,
+			GoogleID:        utils.Ptr(googleUser.ID),
+			Avatar:          utils.Ptr(googleUser.Picture),
 		}
 
 		err = o.userRepo.Create(c.Request.Context(), user)

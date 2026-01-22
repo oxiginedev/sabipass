@@ -12,16 +12,25 @@ import (
 )
 
 type API struct {
-	cfg          *config.Config
-	tokenManager jwt.TokenManager
-	userRepo     models.UserRepository
+	cfg              *config.Config
+	tokenManager     jwt.TokenManager
+	userRepo         models.UserRepository
+	quizRepo         models.QuizRepository
+	questionTypeRepo models.QuestionTypeRepository
 }
 
-func NewAPI(cfg *config.Config, tokenManager jwt.TokenManager, userRepo models.UserRepository) *API {
+func NewAPI(cfg *config.Config,
+	tokenManager jwt.TokenManager,
+	userRepo models.UserRepository,
+	quizRepo models.QuizRepository,
+	questionTypeRepo models.QuestionTypeRepository,
+) *API {
 	return &API{
-		cfg:          cfg,
-		tokenManager: tokenManager,
-		userRepo:     userRepo,
+		cfg:              cfg,
+		tokenManager:     tokenManager,
+		userRepo:         userRepo,
+		quizRepo:         quizRepo,
+		questionTypeRepo: questionTypeRepo,
 	}
 }
 
@@ -33,6 +42,8 @@ func (a *API) RegisterRoutes() http.Handler {
 
 	oauthHandler := handlers.NewOauthHandler(a.cfg, a.tokenManager, a.userRepo)
 	userHandler := handlers.NewUserHandler(a.userRepo)
+	quizHandler := handlers.NewQuizHandler(a.quizRepo)
+	questionTypeHandler := handlers.NewQuestionTypeHandler(a.questionTypeRepo)
 
 	router.Use(gin.Recovery())
 	router.NoRoute(func(c *gin.Context) {
@@ -45,6 +56,13 @@ func (a *API) RegisterRoutes() http.Handler {
 	authRouter := router.Group("/", middleware.RequireAuth(a.tokenManager, a.userRepo))
 	{
 		authRouter.GET("/users/me", userHandler.HandleGetCurrentUser)
+
+		authRouter.GET("/quizzes", quizHandler.HandleGetAllQuizzes)
+		authRouter.POST("/quizzes", quizHandler.HandleCreateQuiz)
+		authRouter.GET("/quizzes/:quizid", quizHandler.HandleGetQuiz)
+		authRouter.PATCH("/quizzes/:quizid", quizHandler.HandleEditQuiz)
+
+		authRouter.GET("/question-types", questionTypeHandler.HandleGetAllQuestionTypes)
 	}
 
 	return router

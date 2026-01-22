@@ -9,13 +9,13 @@ import (
 
 type User struct {
 	ID              string     `bun:"type:uuid,pk" json:"id"`
-	Name            string     `json:"name"`
+	Name            *string    `bun:",nullzero" json:"name"`
 	Username        string     `json:"username"`
 	Email           string     `json:"email"`
 	EmailVerifiedAt *time.Time `bun:",nullzero" json:"email_verified_at"`
-	Password        string     `bun:",nullzero" json:"-"`
-	Avatar          string     `bun:",nullzero" json:"avatar"`
-	GoogleID        string     `bun:",nullzero" json:"-"`
+	Password        *string    `bun:",nullzero" json:"-"`
+	Avatar          *string    `bun:",nullzero" json:"avatar"`
+	GoogleID        *string    `bun:",nullzero" json:"-"`
 	CreatedAt       time.Time  `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
 	UpdatedAt       time.Time  `bun:",nullzero,notnull,default:current_timestamp" json:"updated_at"`
 

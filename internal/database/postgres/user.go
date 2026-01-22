@@ -54,7 +54,7 @@ func (u *userRepo) FindOne(ctx context.Context, opts *models.FindUserOptions) (*
 	err := query.Scan(ctx)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, database.ErrUserNotFound
+			err = database.ErrUserNotFound
 		}
 		return nil, err
 	}

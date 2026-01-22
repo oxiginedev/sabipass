@@ -12,6 +12,12 @@ import (
 	"github.com/oxiginedev/sidekik"
 )
 
+type contextKey string
+
+const (
+	userKey contextKey = "user"
+)
+
 func RequireAuth(tokenManager jwt.TokenManager, userRepo models.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -51,7 +57,15 @@ func RequireAuth(tokenManager jwt.TokenManager, userRepo models.UserRepository) 
 			return
 		}
 
-		c.Set("user", user)
+		c.Set(userKey, user)
 		c.Next()
 	}
+}
+
+func GetUserFromContext(c *gin.Context) (*models.User, bool) {
+	user, ok := c.Get(userKey)
+	if !ok {
+		return nil, false
+	}
+	return user.(*models.User), true
 }

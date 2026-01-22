@@ -24,9 +24,11 @@ func Command(cfg *config.Config) *cobra.Command {
 			}
 
 			userRepo := postgres.NewUserRepository(pgdb)
+			quizRepo := postgres.NewQuizRepository(pgdb)
+			questionTypeRepo := postgres.NewQuestionTypeRepository(pgdb)
 
 			tokenManager := jwt.NewJwtTokenManager(cfg)
-			handler := api.NewAPI(cfg, tokenManager, userRepo)
+			handler := api.NewAPI(cfg, tokenManager, userRepo, quizRepo, questionTypeRepo)
 
 			srv := server.NewServer(cfg, func() {
 				err := pgdb.Close()
