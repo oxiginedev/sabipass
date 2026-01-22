@@ -1,13 +1,13 @@
 package http
 
 import (
-	"log"
 	"log/slog"
 	"os"
 
 	"github.com/oxiginedev/sabipass/config"
 	"github.com/oxiginedev/sabipass/internal/api"
 	"github.com/oxiginedev/sabipass/internal/database/postgres"
+	"github.com/oxiginedev/sabipass/internal/pkg/jwt"
 	"github.com/oxiginedev/sabipass/internal/server"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +17,6 @@ func Command(cfg *config.Config) *cobra.Command {
 		Use:   "http",
 		Short: "Start the HTTP server",
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println(cfg)
 			pgdb, err := postgres.NewDB(cfg)
 			if err != nil {
 				slog.Error("could not connect to database", slog.Any("error", err))
@@ -26,7 +25,8 @@ func Command(cfg *config.Config) *cobra.Command {
 
 			userRepo := postgres.NewUserRepository(pgdb)
 
-			handler := api.NewAPI(cfg, userRepo)
+			tokenManager := jwt.NewJwtTokenManager(cfg)
+			handler := api.NewAPI(cfg, tokenManager, userRepo)
 
 			srv := server.NewServer(cfg, func() {
 				err := pgdb.Close()

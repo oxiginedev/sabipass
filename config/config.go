@@ -32,6 +32,13 @@ type Config struct {
 			RedirectURL  string `envconfig:"SABIPASS_GOOGLE_REDIRECT_URL"`
 		}
 	}
+
+	Auth struct {
+		JWT struct {
+			SecretKey string
+			Expiry    time.Duration `default:"1h"`
+		}
+	}
 }
 
 func Load(pathToFile string, cfg *Config) error {
