@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+dotenv: [".env"]
+
+tasks:
+  migration:create:
+    desc: Create a new migration file
+    vars:
+      NAME: "{{.CLI_ARGS}}"
+    cmds:
+      - migrate -path ./internal/database/postgres/migrations -database $SABIPASS_POSTGRES_DSN create --ext sql {{.NAME}}
+
+  migration:up:
+    desc: Apply pending migrations
+    cmds:
+      - migrate -path ./internal/database/postgres/migrations -database $SABIPASS_POSTGRES_DSN up
+
+  migration:rollback:
+    desc: Rollback last migration
+    vars:
+      STEPS: "{{.CLI_ARGS}}"
+    cmds:
+      - migrate -path ./internal/database/postgres/migrations -database $SABIPASS_POSTGRES_DSN down {{.STEPS}}
+
+  run:http:
+    desc: Run the HTTP server
+    cmds:
+      - go run cmd/main.go http
